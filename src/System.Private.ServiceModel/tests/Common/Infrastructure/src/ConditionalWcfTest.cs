@@ -75,59 +75,80 @@ namespace Infrastructure.Common
             }
         }
 
+        // Returns 'true' if the server is known running on localhost
         private static bool Server_Is_LocalHost()
         {
             return GetConditionValue(nameof(Server_Is_LocalHost),
                                      ConditionalTestDetectors.IsServerLocalHost);
         }
         
+        // Returns 'true' if the client code is executing on a Windows OS
         private static bool Is_Windows()
         {
             return GetConditionValue(nameof(Is_Windows),
                                      ConditionalTestDetectors.IsWindows);
         }
 
+        // Returns 'true' if both the server and the client are domain-joined.
         public static bool Domain_Joined()
         {
             return GetConditionValue(nameof(Domain_Joined),
                                      () => ConditionalTestDetectors.IsClientDomainJoined() && 
-                                           ConditionalTestDetectors.IsServerDomainJoined());
+                                           Server_Domain_Joined());
         }
 
+        // Returns 'true' if the server is domain-joined.
+        // This test does not consider whether the client is domain-joined.
+        public static bool Server_Domain_Joined()
+        {
+            return GetConditionValue(nameof(Server_Domain_Joined),
+                                     ConditionalTestDetectors.IsServerDomainJoined);
+        }
+
+        // Returns 'true' if the root certificate is installed and
+        // can be used.  This test will attempt to install the root certificate
+        // when necessary.  A 'false' from this test usually indicates that
+        // the root certificate could not be installed and was also not found
+        // in the root store.
         public static bool Root_Certificate_Installed()
         {
             return GetConditionValue(nameof(Root_Certificate_Installed),
                                      ConditionalTestDetectors.IsRootCertificateInstalled);
         }
 
+        // Returns 'true' if the client certificate is installed and
+        // can be used.  This test will attempt to install the client certificate
+        // when necessary.  A 'false' from this test usually indicates that
+        // the client certificate could not be installed and was also not found
+        // in the client store.
         public static bool Client_Certificate_Installed()
         {
             return GetConditionValue(nameof(Client_Certificate_Installed),
                                      ConditionalTestDetectors.IsClientCertificateInstalled);
         }
 
-        public static bool UserName_And_Password_Available()
+        // Returns 'true' if ambient credentials are available to use.
+        public static bool Ambient_Credentials_Available()
         {
-            return GetConditionValue(nameof(UserName_And_Password_Available),
-                                     ConditionalTestDetectors.AreUserNameAndPasswordAvailable);
+            return GetConditionValue(nameof(Ambient_Credentials_Available),
+                                     ConditionalTestDetectors.AreAmbientCredentialsAvailable);
         }
 
+        // Returns 'true' if explicit credentials are available to use.
+        public static bool Explicit_Credentials_Available()
+        {
+            return GetConditionValue(nameof(Explicit_Credentials_Available),
+                                     ConditionalTestDetectors.AreExplicitCredentialsAvailable);
+        }
+
+        // Returns 'true' if SPN is available
         public static bool SPN_Available()
         {
-            // Temporarily use the simple heuristic that if we are running the services locally, it is.
-            // Refactor this after integration to address https://github.com/dotnet/wcf/issues/1024 
             return GetConditionValue(nameof(SPN_Available),
-                                     Server_Is_LocalHost);
+                                     ConditionalTestDetectors.IsSPNAvailable);
         }
 
-        public static bool Kerberos_Available()
-        {
-            // Temporarily use the simple heuristic that if we are running the services locally, it is.
-            // Refactor this after integration to address https://github.com/dotnet/wcf/issues/1024 
-            return GetConditionValue(nameof(Kerberos_Available),
-                                     Server_Is_LocalHost);
-        }
-
+        // Returns 'true' if the server is configured to accept client certificates.
         public static bool Server_Accepts_Certificates()
         {
             // Temporarily use the simple heuristic that if we are running the services locally, it does.
@@ -136,6 +157,7 @@ namespace Infrastructure.Common
                                      Server_Is_LocalHost);
         }
 
+        // Returns 'true' if the server is configured to allow Basic Authentication.
         public static bool Basic_Authentication_Available()
         {
             // Temporarily use the simple heuristic that if we are running the services locally, it is.
@@ -144,6 +166,7 @@ namespace Infrastructure.Common
                                      Server_Is_LocalHost);
         }
 
+        // Returns 'true' if the server is configured to allow Digest Authentication.
         public static bool Digest_Authentication_Available()
         {
             // Temporarily use the simple heuristic that if we are running the services locally, it is.
@@ -152,6 +175,7 @@ namespace Infrastructure.Common
                                      Server_Is_LocalHost);
         }
 
+        // Returns 'true' if the server is configured to allow Windows Authentication.
         public static bool Windows_Authentication_Available()
         {
             // Temporarily use the simple heuristic that if we are running the services locally, it is.
@@ -160,6 +184,7 @@ namespace Infrastructure.Common
                                      Server_Is_LocalHost);
         }
 
+        // Returns true if NTLM is available to use.
         public static bool NTLM_Available()
         {
             // Temporarily use the simple heuristic that if we are running the services locally, it is.
